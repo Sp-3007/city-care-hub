@@ -1,29 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "../config/firebase"; // Adjust Firebase import based on your setup
 
 const AdminPrivateRoute = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
-  const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
         try {
-          const user = JSON.parse(storedUser);
-         
-          const data = (() => {
-            try {
-              const customAttributes = JSON.parse(user.customAttributes);
-              
-              return customAttributes.admin === true;
-            } catch (error) {
-              console.error("Error parsing custom attributes:", error);
-              return false;
-            }
-          })();
-
-          setIsAdmin(data);
+          // Fetch or use admin claims stored locally
+          const token = await user.getIdTokenResult();
+          
+          // Check if the user has admin claims
+          if (token.claims.admin) {
+            setIsAdmin(true);
+          } else {
+            setIsAdmin(false);
+          }
         } catch (err) {
           console.error("Error checking admin status:", err);
           setIsAdmin(false);
@@ -31,14 +27,14 @@ const AdminPrivateRoute = ({ children }) => {
       } else {
         setIsAdmin(false);
       }
-      
-      setCheckingAdmin(false);
-    };
+      setCheckingAuth(false);
+    });
 
-    checkAdmin();
+    // Cleanup the listener on unmount
+    return () => unsubscribe();
   }, []);
 
-  if (checkingAdmin) return <div>Loading...</div>;
+  if (checkingAuth) return <div>Loading...</div>;
 
   if (!isAdmin) {
     return <Navigate to="/admin/loginadmin" />;

@@ -2,12 +2,7 @@ import React, { useState } from 'react';
 import { AiOutlineUser, AiOutlineClose, AiOutlineLoading3Quarters } from 'react-icons/ai';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../config/firebase';
-import {
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  setPersistence,
-  browserLocalPersistence
-} from "firebase/auth"; // Adjust Firebase import based on your setup
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import axios from 'axios';
 
 const AdminLogin = () => {
@@ -26,9 +21,6 @@ const AdminLogin = () => {
     setModalOpen(false);
 
     try {
-      // Set persistence after the user successfully logs in
-      
-
       // Use Firebase to sign in the user
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const token = await userCredential.user.getIdToken();
@@ -37,10 +29,8 @@ const AdminLogin = () => {
       const response = await axios.post('http://localhost:5000/api/admin/loginadmin', { token });
 
       if (response.data.role === 'admin') {
-        //await setPersistence(auth, browserLocalPersistence);
-        // Store the user in local storage only if the login is successful
-      
-       localStorage.setItem('user', JSON.stringify(userCredential.user.reloadUserInfo));
+        // Store the user in local storage for quick access
+        localStorage.setItem('user', JSON.stringify(userCredential.user.reloadUserInfo));
 
         setMessage('Admin login successful!');
         navigate('/admin/dashboard');

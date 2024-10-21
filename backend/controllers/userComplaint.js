@@ -159,10 +159,41 @@ const deleteComplaint = async (req, res) => {
   }
 };
 
+const updateComplaint = async (req, res) => {
+  try {
+    const complaintId = req.params.complaintId; // Get the complaint ID from the request parameters
+    const { status, suggestion, notification } = req.body; // Extract data from request body
+
+    // Reference to the specific complaint document
+    const complaintRef = db.collection("complaints").doc(complaintId);
+
+    // Check if the complaint exists
+    const complaintDoc = await complaintRef.get();
+    if (!complaintDoc.exists) {
+      return res.status(404).json({ error: "Complaint not found" });
+    }
+
+    // Update only the fields that are passed in the request body
+    const updateData = {};
+    if (status) updateData.status = status;
+    if (suggestion) updateData.suggestion = suggestion;
+    if (notification !== undefined) updateData.notification = notification;
+
+    // Update the complaint in Firestore
+    await complaintRef.update(updateData);
+
+    res.status(200).json({ message: "Complaint updated successfully" });
+  } catch (error) {
+    console.error("Error updating complaint:", error);
+    res.status(500).json({ error: "Failed to update complaint" });
+  }
+};
+
 module.exports = {
   getdata,
   registerComplaint,
   getUserComplaints,
   getComplaintDetails,
   deleteComplaint,
+  updateComplaint, // Export the update function
 };

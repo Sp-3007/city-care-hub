@@ -1,19 +1,18 @@
-// src/pages/ViewComplaint.jsx
-
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { auth } from '../../config/firebase'; // Adjust import based on your setup
-import LeftNavBar from '../../components/Admin/LeftNavBar '; // Adjust the path as necessary
-import TopNavBar from '../../components/Admin/TopNavBar'; // Adjust the path as necessary
-import ComplaintItem from '../../components/Admin/ViewComplaint/ComplaintItem'; // Import the new component
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../../config/firebase"; 
+import LeftNavBar from "../../components/Admin/LeftNavBar "; 
+import TopNavBar from "../../components/Admin/TopNavBar"; 
+import ComplaintList from "../../components/Admin/ViewComplaint/ComplaintList"; 
 
 const ViewComplaint = () => {
   const [complaints, setComplaints] = useState([]);
   const [totalComplaints, setTotalComplaints] = useState(0);
   const [completedComplaints, setCompletedComplaints] = useState(0);
-  const [pendingComplaints, setPendingComplaints] = useState(0);
+  const [underProcessComplaints, setUnderProcessComplaints] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [currentSection, setCurrentSection] = useState("new"); // Track the current section
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,25 +20,34 @@ const ViewComplaint = () => {
       try {
         const user = auth.currentUser;
         if (!user) {
-          throw new Error('No user is logged in.');
+          throw new Error("No user is logged in.");
         }
 
         const token = await user.getIdToken();
-        const response = await axios.get('http://localhost:5000/api/complaint', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:5000/api/complaint",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        console.log("data is:", response);
+        const complaintsData = response.data;
 
-        setComplaints(response.data);
-        setTotalComplaints(response.data.length);
-        setCompletedComplaints(response.data.filter(c => c.status === 'completed').length);
-        setPendingComplaints(response.data.filter(c => c.status === 'pending').length);
+        // Segregate complaints based on status
+        const newComplaints = complaintsData.filter(c => !c.status);
+        const underProcessComplaints = complaintsData.filter(c => c.status && c.status.toLowerCase() !== "completed");
+        const completedComplaints = complaintsData.filter(c => c.status && c.status.toLowerCase() === "completed");
+
+        setComplaints({ newComplaints, underProcessComplaints, completedComplaints });
+        setTotalComplaints(complaintsData.length);
+        setCompletedComplaints(completedComplaints.length);
+        setUnderProcessComplaints(underProcessComplaints.length);
+
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching complaints:', error);
+        console.error("Error fetching complaints:", error);
         setLoading(false);
       }
     };
@@ -47,39 +55,40 @@ const ViewComplaint = () => {
     fetchComplaints();
   }, [navigate]);
 
-  const handleViewDetails = (complaintId) => {
-    navigate(`/complaint/${complaintId}`);
-  };
-
   const handleStatusUpdate = async (complaintId, newStatus, suggestion) => {
     try {
       const user = auth.currentUser;
       const token = await user.getIdToken();
-      await axios.put(`http://localhost:5000/api/complaint/${complaintId}`, { 
-        status: newStatus,
-        suggestion: suggestion,
-        notification: true // Set notification to true
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.put(
+        `http://localhost:5000/api/complaint/${complaintId}`,
+        {
+          status: newStatus,
+          suggestion: suggestion,
+          notification: true,
         },
-      });
-      alert('Status updated successfully');
-      window.location.reload(); // Consider using state to update instead of reloading
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("Status updated successfully");
+      window.location.reload();
     } catch (error) {
-      console.error('Error updating status:', error);
-      alert('Failed to update status: ' + (error.response?.data?.message || error.message));
+      console.error("Error updating status:", error);
+      alert("Failed to update status: " + (error.response?.data?.message || error.message));
     }
   };
 
   const handleAccept = (complaintId) => {
-    setComplaints(prevComplaints =>
-      prevComplaints.map(complaint =>
-        complaint._id === complaintId
-          ? { ...complaint, status: 'Action Taken', accepted: true } // Mark as accepted
+    setComplaints((prevComplaints) => ({
+      ...prevComplaints,
+      underProcessComplaints: prevComplaints.underProcessComplaints.map((complaint) =>
+        complaint.complaintId === complaintId
+          ? { ...complaint, status: "Action Taken", accepted: true }
           : complaint
-      )
-    );
+      ),
+    }));
   };
 
   if (loading) {
@@ -92,9 +101,10 @@ const ViewComplaint = () => {
       <div className="flex">
         <LeftNavBar />
         <div className="flex-grow flex flex-col items-center bg-gray-100 p-6">
-          {/* Complaints Overview Section */}
           <div className="max-w-4xl w-full bg-white shadow-lg rounded-lg p-6 mb-6">
-            <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">Complaints Overview</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
+              Complaints Overview
+            </h2>
             <div className="grid grid-cols-3 gap-4 mb-4">
               <div className="bg-blue-100 p-4 rounded-lg text-center shadow">
                 <h3 className="text-lg font-semibold">Total Complaints</h3>
@@ -105,24 +115,59 @@ const ViewComplaint = () => {
                 <p className="text-2xl">{completedComplaints}</p>
               </div>
               <div className="bg-yellow-100 p-4 rounded-lg text-center shadow">
-                <h3 className="text-lg font-semibold">Pending Complaints</h3>
-                <p className="text-2xl">{pendingComplaints}</p>
+                <h3 className="text-lg font-semibold">Under Process Complaints</h3>
+                <p className="text-2xl">{underProcessComplaints}</p>
               </div>
             </div>
           </div>
-
-          {/* Registered Complaints Section */}
-          <div className="max-w-4xl w-full bg-white shadow-lg rounded-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Registered Complaints</h2>
-            {complaints.map(complaint => (
-              <ComplaintItem 
-                key={complaint._id}
-                complaint={complaint}
-                onAccept={handleAccept}
-                onUpdate={handleStatusUpdate}
-              />
-            ))}
+          
+          {/* Section Control */}
+          <div className="flex space-x-4 mb-4">
+            <button
+              onClick={() => setCurrentSection("new")}
+              className={`p-2 rounded-md ${currentSection === "new" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            >
+              New Complaints
+            </button>
+            <button
+              onClick={() => setCurrentSection("underProcess")}
+              className={`p-2 rounded-md ${currentSection === "underProcess" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            >
+              Under Process Complaints
+            </button>
+            <button
+              onClick={() => setCurrentSection("completed")}
+              className={`p-2 rounded-md ${currentSection === "completed" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            >
+              Completed Complaints
+            </button>
           </div>
+
+          {/* Display Complaints Based on Section */}
+          {currentSection === "new" && (
+            <ComplaintList
+              complaints={complaints.newComplaints}
+              title="New Complaints"
+              onAccept={handleAccept}
+              onUpdate={handleStatusUpdate}
+            />
+          )}
+          {currentSection === "underProcess" && (
+            <ComplaintList
+              complaints={complaints.underProcessComplaints}
+              title="Under Process Complaints"
+              onAccept={handleAccept}
+              onUpdate={handleStatusUpdate}
+            />
+          )}
+          {currentSection === "completed" && (
+            <ComplaintList
+              complaints={complaints.completedComplaints}
+              title="Completed Complaints"
+              onAccept={handleAccept}
+              onUpdate={handleStatusUpdate}
+            />
+          )}
         </div>
       </div>
     </div>

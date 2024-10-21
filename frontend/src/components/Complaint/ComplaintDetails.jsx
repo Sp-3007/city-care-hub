@@ -84,15 +84,25 @@ const ComplaintDetailsPage = () => {
         <p className="text-lg"><strong>Mobile:</strong> {complaint.mobile}</p>
         <p className="text-lg"><strong>Address:</strong> {complaint.address}</p>
         <p className="text-lg"><strong>Description:</strong> {complaint.description}</p>
-        <p className="text-lg"><strong>Status:</strong> {complaint.status}</p>
+        
+        {/* Status with default message if undefined */}
+        <p className="text-lg"><strong>Status:</strong> {complaint.status || "Complaint submitted to municipal corporation"}</p>
 
         {complaint.photoUrl && (
-          <div className="w-20 h-20 overflow-hidden rounded-md shadow-sm mt-4">
+          <div className="w-40 h-40 overflow-hidden rounded-md shadow-sm mt-4">
             <img 
               src={complaint.photoUrl} 
               alt="Complaint" 
               className="w-full h-full object-cover" 
             />
+          </div>
+        )}
+
+        {/* Conditionally render suggestion/reply from municipal corporation */}
+        {complaint.suggestion && (
+          <div className="bg-gray-100 rounded-md shadow-sm p-4 mt-4">
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Reply from Municipal Corpo:</h3>
+            <p className="text-lg text-gray-600">{complaint.suggestion}</p>
           </div>
         )}
 

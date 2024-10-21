@@ -6,11 +6,13 @@ const {
   registerComplaint,
   getComplaintDetails,
   deleteComplaint,
+  updateComplaint, // Import the updateComplaint function
 } = require("../controllers/userComplaint");
 
 router.get("/", getdata);
-router.get("/:complaintId",getComplaintDetails);
+router.get("/:complaintId", getComplaintDetails);
 router.post("/", registerComplaint);
-router.delete("/:complaintId", deleteComplaint); 
+router.delete("/:complaintId", deleteComplaint);
+router.put("/:complaintId", updateComplaint); // Add PUT route for updating a complaint
 
 module.exports = router;

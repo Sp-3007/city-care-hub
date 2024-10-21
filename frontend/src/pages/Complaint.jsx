@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { auth } from '../config/firebase';
+import { AiOutlineBell } from 'react-icons/ai'; // Importing bell icon
 
 const ComplaintPage = () => {
   const [complaints, setComplaints] = useState([]);
@@ -39,7 +40,30 @@ const ComplaintPage = () => {
     fetchComplaints();
   }, [navigate]);
 
-  const handleComplaintClick = (complaintId) => {
+  const handleComplaintClick = async (complaintId, notification) => {
+    // Update the notification status in the backend
+    if (notification) {
+      try {
+        const user = auth.currentUser;
+        const token = await user.getIdToken();
+
+        await axios.put(
+          `http://localhost:5000/api/complaint/${complaintId}`,
+          {
+            notification: false, // Set notification to false
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Error updating notification:', error);
+        alert('Failed to update notification: ' + (error.response?.data?.message || error.message));
+      }
+    }
+
     navigate(`/complaint-details/${complaintId}`);
   };
 
@@ -74,15 +98,26 @@ const ComplaintPage = () => {
                 {complaints.map((complaint) => (
                   <li 
                     key={complaint.id} 
-                    className="p-6 bg-white border border-gray-200 rounded-lg shadow-md cursor-pointer"
-                    onClick={() => handleComplaintClick(complaint.id)} // Navigate to complaint details on click
+                    className="p-6 bg-white border border-gray-200 rounded-lg shadow-md cursor-pointer relative"
+                    onClick={() => handleComplaintClick(complaint.id, complaint.notification)} // Pass notification status
                   >
                     <h3 className="text-xl font-semibold text-gray-700 mb-2">
                       {complaint.name} ({complaint.mobile})
                     </h3>
-                    <p className="text-gray-600"><strong>Complaint ID:</strong> {complaint.complaintId}</p> {/* Added Complaint ID */}
+                    <p className="text-gray-600"><strong>Complaint ID:</strong> {complaint.complaintId}</p>
                     <p className="text-gray-600"><strong>Category:</strong> {complaint.category}</p>
                     <p className="text-gray-600"><strong>Description:</strong> {complaint.description}</p>
+                    <p className="text-gray-600"><strong>Status:</strong> {complaint.status || "Complaint submitted to municipal corporation"}</p>
+
+                    {/* Display notification count if notification exists and is true */}
+                    {complaint.notification && complaint.notification === true && (
+                      <span className="absolute top-4 right-4 flex items-center">
+                        <AiOutlineBell className="text-red-500 text-3xl" title="Notification" />
+                        <span className="bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-bold absolute -top-2 -right-2">
+                          1
+                        </span>
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
