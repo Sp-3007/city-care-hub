@@ -115,14 +115,14 @@ const ComplaintRegistrationPage = () => {
           ></textarea>
 
           {/* Category Selection */}
-          <CategorySelection selectedCategory={category} onCategoryChange={setCategory} />
+          <CategorySelection selectedCategory={category} onCategoryChange={setCategory}  />
 
           {/* Description Input */}
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Enter description of the complaint"
-            className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+            className="w-full p-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4 mt-4"
             rows="4"
             required
           ></textarea>

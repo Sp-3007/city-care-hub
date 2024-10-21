@@ -78,7 +78,7 @@ const ComplaintDetailsPage = () => {
       <div className="max-w-3xl w-full bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Complaint Details</h2>
         
-        <p className="text-lg mb-2"><strong>Complaint Number:</strong> {complaint.complaintNumber}</p>
+        <p className="text-lg mb-2"><strong>Complaint ID:</strong> {complaint.complaintId}</p>
         <p className="text-lg"><strong>Category:</strong> {complaint.category}</p>
         <p className="text-lg"><strong>Name:</strong> {complaint.name}</p>
         <p className="text-lg"><strong>Mobile:</strong> {complaint.mobile}</p>
@@ -86,8 +86,14 @@ const ComplaintDetailsPage = () => {
         <p className="text-lg"><strong>Description:</strong> {complaint.description}</p>
         <p className="text-lg"><strong>Status:</strong> {complaint.status}</p>
 
-        {complaint.photo && (
-          <img src={complaint.photo} alt="Complaint" className="w-full h-auto mt-4 rounded-md shadow-sm" />
+        {complaint.photoUrl && (
+          <div className="w-20 h-20 overflow-hidden rounded-md shadow-sm mt-4">
+            <img 
+              src={complaint.photoUrl} 
+              alt="Complaint" 
+              className="w-full h-full object-cover" 
+            />
+          </div>
         )}
 
         <button
@@ -97,7 +103,6 @@ const ComplaintDetailsPage = () => {
           Go Back
         </button>
 
-        {/* Delete Complaint Button */}
         <button
           onClick={handleDelete}
           className="mt-4 bg-red-600 text-white p-3 rounded-md hover:bg-red-700 transition duration-200"

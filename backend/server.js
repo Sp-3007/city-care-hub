@@ -1,6 +1,7 @@
 const express = require("express");
 const userComplaint = require("./routes/userComplaint")
 const authenticateUser = require("./middleware/authenticateUser");
+const adminRoutes = require("./routes/admin/adminRoutes")
 const path = require("path")
 const app = express();
 const cors = require("cors");
@@ -21,6 +22,8 @@ app.use(
   upload.single("photo"),
   userComplaint
 );
+
+app.use("/api/admin", adminRoutes);
 
 app.listen(5000, () => {
   console.log("App is running on : localhost:5000");

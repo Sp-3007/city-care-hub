@@ -1,9 +1,8 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import useLocation from "./Hooks/useLocation";
-import Spinner from "./components/Spinner"; // Import Spinner
-import "./index.css";
+import Spinner from "./components/Spinner"; 
+import AdminRoutes from "./pages/Admin/AdminRoutes"; // Import the Admin routes
 
 const Home = lazy(() => import("./pages/Home"));
 const RegisterComplaint = lazy(() => import("./pages/Complaint"));
@@ -12,33 +11,25 @@ const Payment = lazy(() => import("./pages/Payment"));
 const CityRulingParty = lazy(() => import("./pages/CityRulingParty"));
 const UpcomingEvents = lazy(() => import("./pages/UpcomingEvents"));
 const Login = lazy(() => import("./pages/Login"));
-const Register = lazy(() => import("./pages/Register")); // Import your Register component
+const Register = lazy(() => import("./pages/Register"));
 const PrivateRoute = lazy(() => import("./Hooks/PrivateRoute"));
-const UserProfile = lazy(()=>import("./pages/Userprofile"))
-const ComplaintForm = lazy(() =>
-  import("./components/Complaint/ComplaintForm")
-);
-const ComplaintDetails = lazy(() =>
-  import("./components/Complaint/ComplaintDetails")
-);
+const UserProfile = lazy(() => import("./pages/Userprofile"));
+const ComplaintForm = lazy(() => import("./components/Complaint/ComplaintForm"));
+const ComplaintDetails = lazy(() => import("./components/Complaint/ComplaintDetails"));
 
-function App() {
-  const { location, error } = useLocation();
+const AppRoutes = () => {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
-    <Router>
-      <Navbar />
+    <>
+      {!isAdminRoute && <Navbar />}
       <div className="container mx-auto p-2">
         <Suspense fallback={<Spinner />}>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route
-              path="/"
-              element={<Home location={location} error={error} />}
-            />
-
-            {/* Protect all other routes with PrivateRoute */}
+            <Route path="/" element={<Home />} />
             <Route
               path="/complaint"
               element={
@@ -55,7 +46,6 @@ function App() {
                 </PrivateRoute>
               }
             />
-
             <Route
               path="/complaint-registration"
               element={
@@ -69,7 +59,7 @@ function App() {
               element={
                 <PrivateRoute>
                   <PlanCityVisit />
-                  </PrivateRoute>
+                </PrivateRoute>
               }
             />
             <Route
@@ -83,9 +73,19 @@ function App() {
             <Route path="/city-ruling-party" element={<CityRulingParty />} />
             <Route path="/upcoming-events" element={<UpcomingEvents />} />
             <Route path="/profile" element={<UserProfile />} />
+            
+            <Route path="/admin/*" element={<AdminRoutes />} />
           </Routes>
         </Suspense>
       </div>
+    </>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AppRoutes />
     </Router>
   );
 }

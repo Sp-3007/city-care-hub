@@ -36,29 +36,25 @@ const registerComplaint = async (req, res) => {
     }
 
     // Generate a random 8-digit complaint ID
-    const complaintId = Math.floor(
-      10000000 + Math.random() * 90000000
-    ).toString();
+    const complaintId = uuidv4(); // Use UUID for unique complaint ID
 
     // Create a new complaint object
     const newComplaint = {
+      userId, // Store the user ID
       category,
       name,
       mobile,
       address,
       description,
       photoUrl, // Store the photo URL
-      complaintId, // Store the generated 8-digit complaint ID
+      complaintId, // Store the generated complaint ID
       createdAt: new Date().toISOString(), // Timestamp of the complaint
     };
 
     // Save the complaint to Firestore
-    const complaintsRef = db
-      .collection("complaints")
-      .doc(userId)
-      .collection("user_complaint");
+    const complaintsRef = db.collection("complaints").doc(complaintId);
 
-    await complaintsRef.add(newComplaint);
+    await complaintsRef.set(newComplaint); // Use set() to store with complaintId
 
     res
       .status(200)
@@ -69,15 +65,10 @@ const registerComplaint = async (req, res) => {
   }
 };
 
-// Existing function to get complaints
+// Existing function to get complaints for admin
 const getdata = async (req, res) => {
   try {
-    const userId = req.user.uid;
-    const complaintsRef = db
-      .collection("complaints")
-      .doc(userId)
-      .collection("user_complaint");
-
+    const complaintsRef = db.collection("complaints");
     const snapshot = await complaintsRef.get();
 
     if (snapshot.empty) {
@@ -96,18 +87,35 @@ const getdata = async (req, res) => {
   }
 };
 
-const getComplaintDetails = async (req, res) => {
+// Function to get complaints by user ID (for users)
+const getUserComplaints = async (req, res) => {
   try {
     const userId = req.user.uid; // Get the user ID from the authenticated user
+    const complaintsRef = db.collection("complaints");
+    const snapshot = await complaintsRef.where("userId", "==", userId).get();
+
+    if (snapshot.empty) {
+      return res.status(200).json([]);
+    }
+
+    const complaints = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    res.status(200).json(complaints);
+  } catch (error) {
+    console.error("Error fetching user complaints:", error);
+    res.status(500).json({ error: "Failed to fetch user complaints" });
+  }
+};
+
+const getComplaintDetails = async (req, res) => {
+  try {
     const complaintId = req.params.complaintId; // Get the complaint ID from the request parameters
 
     // Reference to the specific complaint document
-    const complaintRef = db
-      .collection("complaints")
-      .doc(userId)
-      .collection("user_complaint")
-      .doc(complaintId);
-
+    const complaintRef = db.collection("complaints").doc(complaintId);
     const complaintDoc = await complaintRef.get();
 
     // Check if the complaint exists
@@ -130,15 +138,10 @@ const getComplaintDetails = async (req, res) => {
 
 const deleteComplaint = async (req, res) => {
   try {
-    const userId = req.user.uid; // Get the user ID from the authenticated request
     const complaintId = req.params.complaintId; // Get the complaint ID from the request parameters
 
     // Reference to the specific complaint document
-    const complaintRef = db
-      .collection("complaints")
-      .doc(userId)
-      .collection("user_complaint")
-      .doc(complaintId);
+    const complaintRef = db.collection("complaints").doc(complaintId);
 
     // Check if the complaint exists before deleting
     const complaintDoc = await complaintRef.get();
@@ -159,6 +162,7 @@ const deleteComplaint = async (req, res) => {
 module.exports = {
   getdata,
   registerComplaint,
+  getUserComplaints,
   getComplaintDetails,
   deleteComplaint,
 };

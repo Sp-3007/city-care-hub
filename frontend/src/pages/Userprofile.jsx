@@ -57,7 +57,7 @@ const UserProfile = () => {
         <div className="flex items-center mb-4">
           {
             <img
-              src="https://i.postimg.cc/x8yhXfYL/Screenshot-562-photoaidcom-cropped.png" // Using a placeholder image if no profile image is available
+              src="https://firebasestorage.googleapis.com/v0/b/my-project-sp2007.appspot.com/o/cropped_image.png?alt=media&token=c6b23b38-156c-4cee-a09b-8e5d4d2919de" // Using a placeholder image if no profile image is available
               alt="Default Profile"
               className="w-20 h-20 rounded-full mr-4"
             />
