@@ -1,4 +1,6 @@
 const express = require("express");
+const verifyAdminToken = require("../middleware/admin/adminauthentication")
+const { upload, uploadPhoto } = require("../middleware/photo");
 
 const router = express.Router();
 const {
@@ -6,13 +8,14 @@ const {
   registerComplaint,
   getComplaintDetails,
   deleteComplaint,
-  updateComplaint, // Import the updateComplaint function
-} = require("../controllers/userComplaint");
+  updateComplaint,
+} = require("../controllers/accessall/userComplaint");
+
+
 
 router.get("/", getdata);
 router.get("/:complaintId", getComplaintDetails);
-router.post("/", registerComplaint);
+router.post("/",verifyAdminToken,upload.single("photo"), uploadPhoto, registerComplaint);
 router.delete("/:complaintId", deleteComplaint);
-router.put("/:complaintId", updateComplaint); // Add PUT route for updating a complaint
-
+router.put("/:complaintId", updateComplaint);
 module.exports = router;

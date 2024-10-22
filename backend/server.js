@@ -1,13 +1,12 @@
 const express = require("express");
 const userComplaint = require("./routes/userComplaint")
 const authenticateUser = require("./middleware/authenticateUser");
+const verifyAdminToken = require("./middleware/admin/adminauthentication")
 const adminRoutes = require("./routes/admin/adminRoutes")
 const path = require("path")
 const app = express();
 const cors = require("cors");
-const multer = require("multer"); 
-
-const upload = multer({ storage: multer.memoryStorage() });
+const newsshow = require("./routes/news")
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -19,11 +18,11 @@ app.use(cors());
 app.use(
   "/api/complaint",
   authenticateUser,
-  upload.single("photo"),
   userComplaint
 );
 
 app.use("/api/admin", adminRoutes);
+app.use("/api/citynews",newsshow);
 
 app.listen(5000, () => {
   console.log("App is running on : localhost:5000");

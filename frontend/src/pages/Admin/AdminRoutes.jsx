@@ -8,6 +8,7 @@ const AdminAssign = lazy(() => import("./CreateAdmin"));
 const AdminLogin = lazy(() => import("./LoginAdmin"));
 const AdminHomePage = lazy(() => import("./AdminHome"));
 const ViewComplaint = lazy(() => import("./ViewComplaint"));
+const AdminNewsPage = lazy(()=>import("./AdminNewsPage"))
 
 const AdminRoutes = () => {
   return (
@@ -35,6 +36,15 @@ const AdminRoutes = () => {
           element={
             <AdminPrivateRoute>
               <ViewComplaint/>
+            </AdminPrivateRoute>
+          }
+        />
+
+<Route
+          path="/newspage"
+          element={
+            <AdminPrivateRoute>
+              <AdminNewsPage/>
             </AdminPrivateRoute>
           }
         />

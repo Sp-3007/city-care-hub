@@ -100,7 +100,7 @@ const ViewComplaint = () => {
       <TopNavBar />
       <div className="flex">
         <LeftNavBar />
-        <div className="flex-grow flex flex-col items-center bg-gray-100 p-6">
+        <div className="flex-grow flex flex-col items-center bg-gray-100 p-6 mt-3" >
           <div className="max-w-4xl w-full bg-white shadow-lg rounded-lg p-6 mb-6">
             <h2 className="text-3xl font-bold text-gray-800 mb-4 text-center">
               Complaints Overview

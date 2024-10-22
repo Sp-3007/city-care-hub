@@ -1,5 +1,4 @@
-const { db } = require("../config/firebaseAdmin");
-const { getStorage } = require("firebase-admin/storage"); // Firebase storage
+const { db } = require("../../config/firebaseAdmin");
 const { v4: uuidv4 } = require("uuid"); // To generate unique names for photo files
 
 const registerComplaint = async (req, res) => {
@@ -7,34 +6,11 @@ const registerComplaint = async (req, res) => {
     const userId = req.user.uid; // Get the user ID from the authenticated request
 
     // Extract complaint data from the request body
-    const { category, name, mobile, address, description } = req.body;
+    const { category, name, mobile, address, description} = req.body;
 
     // Get the photo file from multer middleware
-    const photo = req.file;
-
-    // Initialize the photoUrl variable
-    let photoUrl = null;
-
-    // If a photo is provided, upload it to Firebase Storage
-    if (photo) {
-      const bucket = getStorage().bucket(); // Get the default storage bucket
-      const photoFileName = `public/${uuidv4()}-${photo.originalname}`; // Generate a unique name for the photo
-      const file = bucket.file(photoFileName); // Create a reference to the file in the bucket
-
-      // Upload the photo to Firebase Storage
-      await file.save(photo.buffer, {
-        metadata: {
-          contentType: photo.mimetype,
-        },
-      });
-
-      // Make the file publicly accessible
-      await file.makePublic();
-
-      // Generate the public URL for the uploaded photo
-      photoUrl = `https://storage.googleapis.com/${bucket.name}/${photoFileName}`;
-    }
-
+    const photoUrl = req.photoUrl;
+    
     // Generate a random 8-digit complaint ID
     const complaintId = uuidv4(); // Use UUID for unique complaint ID
 

@@ -11,7 +11,7 @@ const LeftNavBar = () => {
         {[
           { name: 'Dashboard', icon: <FaHome className="inline mr-2" />, path: '/admin/dashboard' },
           { name: 'View Complaints', icon: <FaNewspaper className="inline mr-2" />, path: '/admin/viewcomplaints' },
-          { name: 'Latest News', icon: <FaNewspaper className="inline mr-2" />, path: '/latest-news' },
+          { name: 'Manage News', icon: <FaNewspaper className="inline mr-2" />, path: '/admin/newspage' },
           { name: 'Payment History', icon: <FaMoneyBillWave className="inline mr-2" />, path: '/payment-history' },
           { name: 'Manage Workers', icon: <FaUsers className="inline mr-2" />, path: '/manage-workers' },
           { name: 'Revenue Overview', icon: <FaChartBar className="inline mr-2" />, path: '/revenue-overview' },

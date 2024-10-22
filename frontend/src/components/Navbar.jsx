@@ -66,7 +66,7 @@ const Navbar = () => {
             Bill Payments
           </Link>
           <Link
-            to="/city-ruling-party"
+            to="/citynews"
             className="text-white text-lg hover:bg-purple-700 p-2 rounded-md"
           >
             News

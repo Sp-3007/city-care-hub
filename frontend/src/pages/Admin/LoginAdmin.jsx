@@ -27,6 +27,7 @@ const AdminLogin = () => {
 
       // Send the token to the backend to check for admin claims
       const response = await axios.post('http://localhost:5000/api/admin/loginadmin', { token });
+      console.log("token is :  ",token)
 
       if (response.data.role === 'admin') {
         // Store the user in local storage for quick access

@@ -1,21 +1,32 @@
 import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Spinner from "./components/Spinner"; 
+import Spinner from "./components/Spinner";
 import AdminRoutes from "./pages/Admin/AdminRoutes"; // Import the Admin routes
+
 
 const Home = lazy(() => import("./pages/Home"));
 const RegisterComplaint = lazy(() => import("./pages/Complaint"));
 const PlanCityVisit = lazy(() => import("./pages/PlanCityVisit"));
 const Payment = lazy(() => import("./pages/Payment"));
-const CityRulingParty = lazy(() => import("./pages/CityRulingParty"));
+const CityNews = lazy(() => import("./pages/CityNews"));
+const PerticularNewsDetails = lazy(()=>import("./components/User/news/PerticularNewsDetails"))
 const UpcomingEvents = lazy(() => import("./pages/UpcomingEvents"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
 const PrivateRoute = lazy(() => import("./Hooks/PrivateRoute"));
 const UserProfile = lazy(() => import("./pages/Userprofile"));
-const ComplaintForm = lazy(() => import("./components/Complaint/ComplaintForm"));
-const ComplaintDetails = lazy(() => import("./components/Complaint/ComplaintDetails"));
+const ComplaintForm = lazy(() =>
+  import("./components/Complaint/ComplaintForm")
+);
+const ComplaintDetails = lazy(() =>
+  import("./components/Complaint/ComplaintDetails")
+);
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -70,10 +81,11 @@ const AppRoutes = () => {
                 </PrivateRoute>
               }
             />
-            <Route path="/city-ruling-party" element={<CityRulingParty />} />
+            <Route path="/citynews" element={<CityNews />} />
+            <Route path="/citynews/:id" element={<PerticularNewsDetails />} />
             <Route path="/upcoming-events" element={<UpcomingEvents />} />
             <Route path="/profile" element={<UserProfile />} />
-            
+
             <Route path="/admin/*" element={<AdminRoutes />} />
           </Routes>
         </Suspense>
