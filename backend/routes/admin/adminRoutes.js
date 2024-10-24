@@ -10,6 +10,10 @@ const {
 const verifyAdminToken = require("../../middleware/admin/adminauthentication");
 const { upload, uploadPhoto } = require("../../middleware/photo");
 
+const {
+  getUserByInput,
+} = require("../../controllers/admin/billpayment/getuserdata");
+
 
 const router = express.Router();
 
@@ -22,6 +26,8 @@ router.post(
   uploadPhoto,
   addNews
 );
+
+router.get("/userdetails/:inputValue", verifyAdminToken, getUserByInput);
 
 router.get("/news", verifyAdminToken, getLatestNews);
 router.delete("/news/:id",verifyAdminToken, deleteNews);

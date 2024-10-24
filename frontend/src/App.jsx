@@ -9,13 +9,14 @@ import Navbar from "./components/Navbar";
 import Spinner from "./components/Spinner";
 import AdminRoutes from "./pages/Admin/AdminRoutes"; // Import the Admin routes
 
-
 const Home = lazy(() => import("./pages/Home"));
 const RegisterComplaint = lazy(() => import("./pages/Complaint"));
 const PlanCityVisit = lazy(() => import("./pages/PlanCityVisit"));
 const Payment = lazy(() => import("./pages/Payment"));
 const CityNews = lazy(() => import("./pages/CityNews"));
-const PerticularNewsDetails = lazy(()=>import("./components/User/news/PerticularNewsDetails"))
+const PerticularNewsDetails = lazy(() =>
+  import("./components/User/news/PerticularNewsDetails")
+);
 const UpcomingEvents = lazy(() => import("./pages/UpcomingEvents"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
@@ -26,7 +27,8 @@ const ComplaintForm = lazy(() =>
 );
 const ComplaintDetails = lazy(() =>
   import("./components/Complaint/ComplaintDetails")
-);
+)
+const ProfileCompletionModal =lazy(()=>import("./components/User/ProfileCompletion/ProfileCompletionModal"))
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -85,6 +87,7 @@ const AppRoutes = () => {
             <Route path="/citynews/:id" element={<PerticularNewsDetails />} />
             <Route path="/upcoming-events" element={<UpcomingEvents />} />
             <Route path="/profile" element={<UserProfile />} />
+            <Route path="/profile-completion" element={<ProfileCompletionModal />} />
 
             <Route path="/admin/*" element={<AdminRoutes />} />
           </Routes>

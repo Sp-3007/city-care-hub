@@ -55,4 +55,6 @@ const updateViewCount = async (req, res) => {
   }
 };
 
+
+
 module.exports = { getLatestNews, updateViewCount };

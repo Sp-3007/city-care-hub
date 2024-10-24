@@ -1,20 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { signInWithPopup, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import { auth, googleProvider } from '../config/firebase';
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { useNavigate } from 'react-router-dom';
+import ProfileCompletionModal from '../components/User/ProfileCompletion/ProfileCompletionModal'; 
+
 
 const Login = () => {
+  const [showModal, setShowModal] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isFirstLogin, setIsFirstLogin] = useState(false);
   const navigate = useNavigate();
+
 
   const handleGoogleLogin = async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const token = await result.user.getIdToken();
-      window.alert("Google login successful!");
-      console.log(token)
-      navigate("/"); // Redirect after successful login, adjust as needed
+        const result = await signInWithPopup(auth, googleProvider);
+        const loggedInUser = result.user;
+        setUser(loggedInUser);
+        console.log("user is :",result)
+        navigate('/profile'); 
+        window.alert("Google login successful!");
     } catch (error) {
-      window.alert("Error with Google login: " + error.message);
+        console.error("Google login error:", error); 
+        await auth.signOut();
+        setUser(null);
+        window.alert("Error with Google login: " + error.message);
     }
   };
 
@@ -22,13 +33,13 @@ const Login = () => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
-    
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
-      const token = await result.user.getIdToken();
-      console.log("JWT Token:", token); // Print the JWT toke
+      const loggedInUser = result.user;
+      console.log("user is :",loggedInUser)
+      setUser(loggedInUser);
+      navigate('/profile'); 
       window.alert("Login successful!");
-      navigate("/"); // Redirect after successful login, adjust as needed
     } catch (error) {
       window.alert("Error with email login: " + error.message);
     }
@@ -48,13 +59,15 @@ const Login = () => {
     }
   };
 
+  
+
   return (
-    <div className="min-h-screen bg-gray-200 flex flex-col">
+    <div className={`min-h-screen bg-gray-200 flex flex-col ${showModal ? 'pointer-events-none' : ''}`}>
       <div className="h-10 bg-gray-200"></div>
 
       <div className="w-full max-w-md p-6 mx-auto bg-white shadow-md rounded-lg mt-1">
         <h2 className="text-3xl font-extrabold mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-teal-400">
-        Your Next Step to a Smarter City
+          Your Next Step to a Smarter City
         </h2>
 
         <form onSubmit={handleEmailLogin} className="space-y-6">
@@ -64,6 +77,7 @@ const Login = () => {
               name="email" 
               placeholder="Email" 
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              required
             />
           </div>
           <div>
@@ -72,6 +86,7 @@ const Login = () => {
               name="password" 
               placeholder="Password" 
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              required
             />
           </div>
           <div className="text-right">
@@ -101,6 +116,11 @@ const Login = () => {
           </button>
         </div>
       </div>
+
+      {/* Render the profile completion modal */}
+      {showModal && user && isFirstLogin && (
+        <ProfileCompletionModal user={user} onComplete={handleProfileComplete} />
+      )}
     </div>
   );
 };
