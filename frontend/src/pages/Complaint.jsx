@@ -19,7 +19,7 @@ const ComplaintPage = () => {
 
         const token = await user.getIdToken();
 
-        const response = await axios.get('http://localhost:5000/api/complaint', {
+        const response = await axios.get('http://localhost:5000/api/complaint/user', { 
           headers: {
             Authorization: `Bearer ${token}`,
           },

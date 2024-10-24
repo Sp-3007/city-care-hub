@@ -1,7 +1,7 @@
 // backend/routes/userRoutes.js
 const express = require("express");
 const { createAdminUser } = require("../../controllers/admin/adminRegister");
-const {loginAdmin} = require("../../controllers/admin/adminLogin");
+const { loginAdmin } = require("../../controllers/admin/adminLogin");
 const {
   addNews,
   getLatestNews,
@@ -14,6 +14,10 @@ const {
   getUserByInput,
 } = require("../../controllers/admin/billpayment/getuserdata");
 
+const {
+  createWaterBill,
+  getUserWaterBills,
+} = require("../../controllers/admin/billpayment/waterBillController");
 
 const router = express.Router();
 
@@ -30,6 +34,11 @@ router.post(
 router.get("/userdetails/:inputValue", verifyAdminToken, getUserByInput);
 
 router.get("/news", verifyAdminToken, getLatestNews);
-router.delete("/news/:id",verifyAdminToken, deleteNews);
+router.delete("/news/:id", verifyAdminToken, deleteNews);
+
+//Bill Routes
+
+router.post("/waterbill", verifyAdminToken, createWaterBill);
+router.get("/waterbill/:userId", verifyAdminToken, getUserWaterBills);
 
 module.exports = router;

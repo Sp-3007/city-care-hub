@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../config/firebase"; // Ensure you have Firebase initialized
+import { auth } from "../config/firebase"; 
+import { createUserWithEmailAndPassword , sendEmailVerification} from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
@@ -11,9 +11,13 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential= await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      await sendEmailVerification(user);
+      
       // Success message
-      window.alert("Registration successful!");
+      window.alert("Registration successful! Please check your email for a verification link.");
+     
       setTimeout(() => navigate("/login"), 2000); // Redirect after 2 seconds
     } catch (error) {
       // Error message

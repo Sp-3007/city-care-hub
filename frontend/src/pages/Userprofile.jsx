@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "../config/firebase"; // assuming db is already initialized for Firestore
+import { auth } from "../config/firebase"; // Assuming db is not needed here
 import { Link, useNavigate } from "react-router-dom";
-import { getDoc, doc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth"; // Add this import
 
 const UserProfile = () => {
@@ -14,12 +13,20 @@ const UserProfile = () => {
   const [pendingNotifications, setPendingNotifications] = useState(2); // Hardcoded for example
   const navigate = useNavigate();
 
+  // Function to extract display name from email
+  const getDisplayNameFromEmail = (email) => {
+    const namePart = email.split("@")[0].replace(/\d/g, ""); // Remove digits
+    return namePart.charAt(0).toUpperCase() + namePart.slice(1); // Capitalize first letter
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        const token = await user.getIdToken(); // Get the JWT token
-        console.log("Token is:", token);
-        fetchUserData(user.uid, token); // Pass token to the fetch function
+        const displayName =
+          user.displayName ||
+          (user.email ? getDisplayNameFromEmail(user.email) : "User");
+        
+        fetchUserData(user.uid); // Fetch user data with the user's uid
       } else {
         alert("User is not authenticated. Please log in.");
         navigate("/login");
@@ -29,13 +36,12 @@ const UserProfile = () => {
     return () => unsubscribe();
   }, [navigate]);
 
-  const fetchUserData = async (userId, token) => {
+  const fetchUserData = async (userId) => {
     try {
-      
       const response = await fetch(`http://localhost:5000/api/user/${userId}`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${await user.getIdToken()}`,
         },
       });
 
@@ -58,21 +64,23 @@ const UserProfile = () => {
 
   const handleSubmit = async () => {
     try {
-      const token = await user.getIdToken(); // Get JWT token
-      const response = await fetch(`http://localhost:5000/api/user/${user.uid}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          mobileNumber,
-          address,
-          name: user.displayName || "User Name", 
-          email: user.email,
-        }),
-      });
-  
+      const response = await fetch(
+        `http://localhost:5000/api/user/${user.uid}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${await user.getIdToken()}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            mobileNumber,
+            address,
+            name: user.displayName || "User Name",
+            email: user.email,
+          }),
+        }
+      );
+
       if (response.ok) {
         alert("Profile updated successfully!");
       } else {
@@ -82,7 +90,6 @@ const UserProfile = () => {
       console.error("Failed to submit profile:", err);
     }
   };
-  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -92,13 +99,18 @@ const UserProfile = () => {
     return <div>Error: {error.message}</div>;
   }
 
+  const displayName =
+    user?.displayName || (user?.email ? getDisplayNameFromEmail(user.email) : "User Name");
+
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="bg-white shadow-md rounded-lg p-6 relative">
         {/* Notification Icon */}
         <div className="absolute top-4 right-4">
           <div className="relative">
-            <span className="material-icons text-gray-600 text-4xl">notifications</span>
+            <span className="material-icons text-gray-600 text-4xl">
+              notifications
+            </span>
             {pendingNotifications > 0 && (
               <span className="absolute top-0 right-0 block h-5 w-5 rounded-full bg-red-600 text-white text-xs text-center">
                 {pendingNotifications}
@@ -111,13 +123,15 @@ const UserProfile = () => {
 
         <div className="flex items-center mb-4">
           <img
-            src={"https://firebasestorage.googleapis.com/v0/b/my-project-sp2007.appspot.com/o/cropped_image.png?alt=media&token=c6b23b38-156c-4cee-a09b-8e5d4d2919de"}
+            src={
+              "https://firebasestorage.googleapis.com/v0/b/my-project-sp2007.appspot.com/o/cropped_image.png?alt=media&token=c6b23b38-156c-4cee-a09b-8e5d4d2919de"
+            }
             alt="Profile"
             className="w-20 h-20 rounded-full mr-4"
           />
           <div>
             {/* Name and Email in separate lines */}
-            <h2 className="text-xl font-semibold">{user?.displayName || "User Name"}</h2>
+            <h2 className="text-xl font-semibold">{displayName}</h2>
             <p className="text-gray-600">{user?.email || "user@example.com"}</p>
           </div>
         </div>
@@ -130,7 +144,9 @@ const UserProfile = () => {
             value={mobileNumber}
             onChange={(e) => setMobileNumber(e.target.value)}
             disabled={!isEditable}
-            className={`block w-full mt-1 p-2 border ${isEditable ? "border-gray-300" : "border-gray-200 bg-gray-100"} rounded`}
+            className={`block w-full mt-1 p-2 border ${
+              isEditable ? "border-gray-300" : "border-gray-200 bg-gray-100"
+            } rounded`}
           />
         </div>
 
@@ -141,7 +157,9 @@ const UserProfile = () => {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             disabled={!isEditable}
-            className={`block w-full mt-1 p-2 border ${isEditable ? "border-gray-300" : "border-gray-200 bg-gray-100"} rounded`}
+            className={`block w-full mt-1 p-2 border ${
+              isEditable ? "border-gray-300" : "border-gray-200 bg-gray-100"
+            } rounded`}
           />
         </div>
 
@@ -162,22 +180,34 @@ const UserProfile = () => {
           <h2 className="text-xl font-semibold mb-2">Settings</h2>
           <ul>
             <li className="mb-2">
-              <Link to="/account-settings" className="text-blue-600 hover:underline">
+              <Link
+                to="/account-settings"
+                className="text-blue-600 hover:underline"
+              >
                 Account Settings
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/privacy-settings" className="text-blue-600 hover:underline">
+              <Link
+                to="/privacy-settings"
+                className="text-blue-600 hover:underline"
+              >
                 Privacy Settings
               </Link>
             </li>
             <li className="mb-2">
-              <Link to="/notification-settings" className="text-blue-600 hover:underline">
+              <Link
+                to="/notification-settings"
+                className="text-blue-600 hover:underline"
+              >
                 Notification Settings
               </Link>
             </li>
             <li>
-              <button onClick={() => auth.signOut()} className="text-red-600 hover:underline">
+              <button
+                onClick={() => auth.signOut()}
+                className="text-red-600 hover:underline"
+              >
                 Logout
               </button>
             </li>

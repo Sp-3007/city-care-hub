@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import { signInWithPopup, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import { auth, googleProvider } from '../config/firebase';
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 import { useNavigate } from 'react-router-dom';
 import ProfileCompletionModal from '../components/User/ProfileCompletion/ProfileCompletionModal'; 
-
 
 const Login = () => {
   const [showModal, setShowModal] = useState(false);
@@ -12,20 +10,27 @@ const Login = () => {
   const [isFirstLogin, setIsFirstLogin] = useState(false);
   const navigate = useNavigate();
 
-
   const handleGoogleLogin = async () => {
     try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const loggedInUser = result.user;
-        setUser(loggedInUser);
-        console.log("user is :",result)
-        navigate('/profile'); 
-        window.alert("Google login successful!");
+      const result = await signInWithPopup(auth, googleProvider);
+      const loggedInUser = result.user;
+      await loggedInUser.reload(); // Reload user data
+
+      if (!loggedInUser.emailVerified) {
+        await auth.signOut(); // Sign out if not verified
+        window.alert("Please verify your email before logging in.");
+        return;
+      }
+
+      setUser(loggedInUser);
+      console.log("user is :", result);
+      navigate('/profile'); 
+      window.alert("Google login successful!");
     } catch (error) {
-        console.error("Google login error:", error); 
-        await auth.signOut();
-        setUser(null);
-        window.alert("Error with Google login: " + error.message);
+      console.error("Google login error:", error); 
+      await auth.signOut();
+      setUser(null);
+      window.alert("Error with Google login: " + error.message);
     }
   };
 
@@ -36,7 +41,15 @@ const Login = () => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       const loggedInUser = result.user;
-      console.log("user is :",loggedInUser)
+      await loggedInUser.reload(); // Reload user data
+
+      if (!loggedInUser.emailVerified) {
+        await auth.signOut(); // Sign out if not verified
+        window.alert("Please verify your email before logging in.");
+        return;
+      }
+
+      console.log("user is :", loggedInUser);
       setUser(loggedInUser);
       navigate('/profile'); 
       window.alert("Login successful!");
@@ -58,8 +71,6 @@ const Login = () => {
       window.alert("Please enter a valid email address.");
     }
   };
-
-  
 
   return (
     <div className={`min-h-screen bg-gray-200 flex flex-col ${showModal ? 'pointer-events-none' : ''}`}>
