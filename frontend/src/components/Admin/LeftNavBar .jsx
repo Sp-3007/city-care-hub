@@ -14,7 +14,7 @@ const LeftNavBar = () => {
           { name: 'Manage News', icon: <FaNewspaper className="inline mr-2" />, path: '/admin/newspage' },
           { name: 'Payment History', icon: <FaMoneyBillWave className="inline mr-2" />, path: '/admin/billmanagement' },
           { name: 'Manage Workers', icon: <FaUsers className="inline mr-2" />, path: '/manage-workers' },
-          { name: 'Revenue Overview', icon: <FaChartBar className="inline mr-2" />, path: '/revenue-overview' },
+       
         ].map((item) => (
           <li key={item.name} className="mb-4">
             <Link

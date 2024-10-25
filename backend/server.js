@@ -7,6 +7,7 @@ const adminRoutes = require("./routes/admin/adminRoutes")
 const path = require("path")
 const app = express();
 const cors = require("cors");
+const hireworker = require("./routes/hireworker")
 const newsshow = require("./routes/news")
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -25,6 +26,7 @@ app.use(
 app.use("/api/admin", adminRoutes);
 app.use("/api/citynews",newsshow);
 app.use("/api/user",authenticateUser,userroute);
+app.use("/api/hireworker",authenticateUser,hireworker)
 
 app.listen(5000, () => {
   console.log("App is running on : localhost:5000");

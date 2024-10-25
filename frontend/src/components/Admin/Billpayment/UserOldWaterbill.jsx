@@ -95,25 +95,30 @@ const UseroldWaterBills = ({ userId, userName, userEmail }) => {
                 <p>Amount: ₹{bill.amount}</p>
                 <p>Status: {bill.status}</p>
                 <p>Last Date: {bill.lastDate}</p>
-                <button
-                  onClick={() => sendNotification(bill)}
-                  disabled={sendingBillId === bill.billId} // Disable only for this specific bill
-                  className={`mt-4 px-4 py-2 rounded flex items-center ${
-                    sendingBillId === bill.billId
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-yellow-500 text-white hover:bg-yellow-600"
-                  }`}
-                >
-                  {sendingBillId === bill.billId ? (
-                    <>
-                      <FaSpinner className="animate-spin mr-2" /> Sending...
-                    </>
-                  ) : (
-                    <>
-                      <FaBell className="mr-2" /> Send Notification
-                    </>
-                  )}
-                </button>
+                {/* Conditionally render the notification button */}
+                {bill.status === "paid" ? (
+                  <p className="mt-4 text-gray-500">Notification not required (Paid)</p>
+                ) : (
+                  <button
+                    onClick={() => sendNotification(bill)}
+                    disabled={sendingBillId === bill.billId} // Disable only for this specific bill
+                    className={`mt-4 px-4 py-2 rounded flex items-center ${
+                      sendingBillId === bill.billId
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-yellow-500 text-white hover:bg-yellow-600"
+                    }`}
+                  >
+                    {sendingBillId === bill.billId ? (
+                      <>
+                        <FaSpinner className="animate-spin mr-2" /> Sending...
+                      </>
+                    ) : (
+                      <>
+                        <FaBell className="mr-2" /> Send Notification
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             ))
           ) : (

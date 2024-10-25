@@ -32,7 +32,7 @@ const Home = () => {
         {/* Functionality 1: Complain Registration */}
         <Link to="/complaint" className="bg-white shadow-lg rounded-lg p-6 hover:bg-blue-50 transition">
           <img
-            src="https://picsum.photos/400/300?random=1"
+            src="https://img.freepik.com/premium-vector/car-repair-service-online-service-platform-automobile-cooling_277904-16496.jpg"
             alt="Complain Registration"
             className="w-full h-48 object-cover rounded-t-lg"
           />
@@ -45,7 +45,7 @@ const Home = () => {
         {/* Functionality 2: Plan City Visits */}
         <Link to="/plan-city-visit" className="bg-white shadow-lg rounded-lg p-6 hover:bg-blue-50 transition">
           <img
-            src="https://picsum.photos/400/300?random=2"
+            src="https://img.freepik.com/premium-vector/family-traveling-city-vector_961875-503072.jpg"
             alt="Plan City Visits"
             className="w-full h-48 object-cover rounded-t-lg"
           />
@@ -58,7 +58,7 @@ const Home = () => {
         {/* Functionality 3: Pay City Bills */}
         <Link to="/payment" className="bg-white shadow-lg rounded-lg p-6 hover:bg-blue-50 transition">
           <img
-            src="https://picsum.photos/400/300?random=3"
+            src="https://img.freepik.com/premium-vector/illustration-vector-graphic-cartoon-character-bill_516790-2300.jpg"
             alt="Pay City Bills"
             className="w-full h-48 object-cover rounded-t-lg"
           />
@@ -71,7 +71,7 @@ const Home = () => {
         {/* Functionality 4: City Events */}
         <Link to="/upcoming-events" className="bg-white shadow-lg rounded-lg p-6 hover:bg-blue-50 transition">
           <img
-            src="https://picsum.photos/400/300?random=4"
+            src="https://img.freepik.com/premium-photo/people-man-music-city-white-india-face-portrait-microphone-old-event-adult-new-democrac_1145381-18618.jpg"
             alt="City Events"
             className="w-full h-48 object-cover rounded-t-lg"
           />

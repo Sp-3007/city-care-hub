@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { signInWithPopup, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 import { auth, googleProvider } from '../config/firebase';
 import { useNavigate } from 'react-router-dom';
-import ProfileCompletionModal from '../components/User/ProfileCompletion/ProfileCompletionModal'; 
 
 const Login = () => {
   const [showModal, setShowModal] = useState(false);
@@ -128,10 +127,6 @@ const Login = () => {
         </div>
       </div>
 
-      {/* Render the profile completion modal */}
-      {showModal && user && isFirstLogin && (
-        <ProfileCompletionModal user={user} onComplete={handleProfileComplete} />
-      )}
     </div>
   );
 };

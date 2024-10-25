@@ -45,7 +45,6 @@ const updateUserProfile = async (req, res) => {
       email,
       mobileNumber : String(mobileNumber),
       address,
-      billingInfo: [], 
       userId: userId,
     };
 

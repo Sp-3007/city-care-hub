@@ -59,7 +59,7 @@ exports.createWaterBill = async (req, res) => {
     const billDocRef = await db.collection("waterbill").add(billData);
 
     // Step 4: Get the user's current billRefs or initialize it
-    const billRefs = userData.billingInfo || {};
+    const billRefs = userData.billRefs || {};
 
     // Step 5: Check if the waterbill array exists in billRefs, else initialize it
     const waterBillArray = billRefs.waterbill || [];
@@ -133,3 +133,4 @@ try {
 }
 
 };
+

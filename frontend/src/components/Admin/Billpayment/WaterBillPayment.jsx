@@ -10,7 +10,6 @@ import {
   FaMapMarkerAlt,
   FaSpinner, // Importing loading spinner icon
 } from "react-icons/fa";
-
 import UseroldWaterBills from "./UserOldWaterbill";
 
 const WaterBillPayment = ({ handleBackToSelection }) => {
@@ -21,6 +20,7 @@ const WaterBillPayment = ({ handleBackToSelection }) => {
   const [totalBill, setTotalBill] = useState(0);
   const [chargesPerLitre, setChargesPerLitre] = useState(0);
   const [creatingBill, setCreatingBill] = useState(false); // New state for creating bill
+  const [showOldBills, setShowOldBills] = useState(false); // State to control visibility of old bills
 
   const handlegetUser = async () => {
     if (inputValue.length === 6 || inputValue.length === 10) {
@@ -41,14 +41,17 @@ const WaterBillPayment = ({ handleBackToSelection }) => {
         if (response.status === 200) {
           const data = response.data;
           setUserData(data);
+          setShowOldBills(true); // Show old bills after user data is fetched
           alert(`User found: ${data.name}`);
         } else {
           alert("No user found. Please check the User ID or Mobile Number.");
+          setShowOldBills(false); // Hide old bills if no user is found
         }
       } catch (err) {
         setLoading(false);
         console.error("Error fetching user data:", err);
         alert("Error fetching user data. Please try again.");
+        setShowOldBills(false); // Hide old bills if there's an error
       }
     } else {
       alert("Please enter a valid 6-digit User ID or 10-digit Mobile Number.");
@@ -87,7 +90,6 @@ const WaterBillPayment = ({ handleBackToSelection }) => {
     }
 
     const currentDate = new Date();
-
     const createMonth = String(currentDate.getMonth() + 1).padStart(2, "0");
     const createDay = String(currentDate.getDate()).padStart(2, "0");
     const createYear = currentDate.getFullYear();
@@ -95,11 +97,9 @@ const WaterBillPayment = ({ handleBackToSelection }) => {
 
     const lastDate = new Date(currentDate);
     lastDate.setMonth(currentDate.getMonth() + 1);
-
     if (lastDate.getDate() !== currentDate.getDate()) {
       lastDate.setDate(0);
     }
-
     const lastMonth = String(lastDate.getMonth() + 1).padStart(2, "0");
     const lastDay = String(lastDate.getDate()).padStart(2, "0");
     const lastYear = lastDate.getFullYear();
@@ -116,7 +116,6 @@ const WaterBillPayment = ({ handleBackToSelection }) => {
     };
 
     console.log("The Bill Data is :", billData);
-
     setCreatingBill(true); // Start loading state for bill creation
 
     try {
@@ -135,6 +134,14 @@ const WaterBillPayment = ({ handleBackToSelection }) => {
 
       if (response.status === 201) {
         alert("Bill created successfully.");
+        
+        // Reset states after successful bill creation
+        setInputValue("");
+        setUserData(null);
+        setWaterUsage("");
+        setTotalBill(0);
+        setChargesPerLitre(0);
+        setShowOldBills(false); // Hide old bills after bill creation
       } else {
         alert("Failed to create the bill.");
       }
@@ -196,102 +203,91 @@ const WaterBillPayment = ({ handleBackToSelection }) => {
       </div>
       {userData && (
         <div>
-        <div className="mt-8 p-6 bg-gray-100 shadow-lg rounded-lg">
-          <h3 className="text-lg font-semibold mb-6">User Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center">
-              <FaUser className="text-blue-500 mr-3" size={24} />
-              <input
-                type="text"
-                value={userData.name}
-                readOnly
-                className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
-              />
-            </div>
-            <div className="flex items-center">
-              <FaIdCard className="text-blue-500 mr-3" size={24} />
-              <input
-                type="text"
-                value={userData.userId}
-                readOnly
-                className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
-              />
-            </div>
-            <div className="flex items-center">
-              <FaMobileAlt className="text-blue-500 mr-3" size={24} />
-              <input
-                type="text"
-                value={userData.mobileNumber}
-                readOnly
-                className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
-              />
-            </div>
-            <div className="flex items-center">
-              <FaEnvelope className="text-blue-500 mr-3" size={24} />
-              <input
-                type="text"
-                value={userData.email}
-                readOnly
-                className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
-              />
-            </div>
-            <div className="flex items-center">
-              <FaMapMarkerAlt className="text-blue-500 mr-3" size={24} />
-              <input
-                type="text"
-                value={userData.address}
-                readOnly
-                className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
-              />
+          <div className="mt-8 p-6 bg-gray-100 shadow-lg rounded-lg">
+            <h3 className="text-lg font-semibold mb-6">User Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center">
+                <FaUser className="text-blue-500 mr-3" size={24} />
+                <input
+                  type="text"
+                  value={userData.name}
+                  readOnly
+                  className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+              <div className="flex items-center">
+                <FaIdCard className="text-blue-500 mr-3" size={24} />
+                <input
+                  type="text"
+                  value={userData.userId}
+                  readOnly
+                  className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+              <div className="flex items-center">
+                <FaMobileAlt className="text-blue-500 mr-3" size={24} />
+                <input
+                  type="text"
+                  value={userData.mobileNumber}
+                  readOnly
+                  className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+              <div className="flex items-center">
+                <FaEnvelope className="text-blue-500 mr-3" size={24} />
+                <input
+                  type="text"
+                  value={userData.email}
+                  readOnly
+                  className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+              <div className="flex items-center">
+                <FaMapMarkerAlt className="text-blue-500 mr-3" size={24} />
+                <input
+                  type="text"
+                  value={userData.address}
+                  readOnly
+                  className="border border-gray-300 rounded p-2 w-full bg-gray-50 cursor-not-allowed"
+                />
+              </div>
             </div>
           </div>
-          <div className="mt-6">
-            <label className="block mb-2">Water Usage:</label>
+          <div className="mt-8 p-6 bg-white shadow-lg rounded-lg">
+            <h3 className="text-lg font-semibold mb-4">Select Water Usage</h3>
             <select
+              value={waterUsage}
               onChange={(e) => {
                 setWaterUsage(e.target.value);
                 calculateTotalBill(e.target.value);
               }}
               className="border border-gray-300 rounded p-2 w-full"
             >
-              <option value="">Select Water Usage</option>
-              <option value="below_10000">Below 10,000 Litre</option>
-              <option value="10000-12000">10,000 - 12,000 Litre</option>
-              <option value="above_12000">Above 12,000 Litre</option>
+              <option value="">Select usage</option>
+              <option value="below_10000">Below 10,000 liters</option>
+              <option value="10000-12000">10,000 - 12,000 liters</option>
+              <option value="above_12000">Above 12,000 liters</option>
             </select>
-          </div>
-          {waterUsage && (
             <div className="mt-4">
-              <h4 className="font-semibold">
-                Total Bill Amount: ₹{totalBill.toFixed(2)}
-              </h4>
-
-              <h4 className="font-semibold">
-                Charges per Liter: ₹{chargesPerLitre}
-              </h4>
-              
+              <p>Total Bill: ₹{totalBill.toFixed(2)}</p>
+              <p>Charges Per Litre: ₹{chargesPerLitre.toFixed(2)}</p>
             </div>
-            
-          )}
-          <button
-            onClick={handleCreateBill}
-            className="mt-6 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            disabled={creatingBill}
-          >
-            {creatingBill ? (
-              <div className="flex items-center">
+            <button
+              onClick={handleCreateBill}
+              className="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              disabled={creatingBill}
+            >
+              {creatingBill ? (
                 <FaSpinner className="animate-spin mr-2" />
-                Creating Bill...
-              </div>
-            ) : (
-              "Create Bill"
-            )}
-          </button>
+              ) : (
+                "Create Bill"
+              )}
+            </button>
           </div>
-          <UseroldWaterBills userId={userData.userId} userName={userData.name} userEmail={userData.email} />
-
         </div>
       )}
+      {/* Only show old bills section if the user data is present and showOldBills is true */}
+      {userData && showOldBills && <UseroldWaterBills userId={userData.userId} />}
     </div>
   );
 };

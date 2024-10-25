@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../config/firebase"; // Assuming db is not needed here
 import { Link, useNavigate } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth"; // Add this import
+import { onAuthStateChanged } from "firebase/auth"; // Import Firebase auth
 
 const UserProfile = () => {
   const [user, loading, error] = useAuthState(auth);
@@ -26,7 +26,7 @@ const UserProfile = () => {
           user.displayName ||
           (user.email ? getDisplayNameFromEmail(user.email) : "User");
         
-        fetchUserData(user.uid); // Fetch user data with the user's uid
+        await fetchUserData(user.uid); // Fetch user data with the user's uid
       } else {
         alert("User is not authenticated. Please log in.");
         navigate("/login");
@@ -38,10 +38,11 @@ const UserProfile = () => {
 
   const fetchUserData = async (userId) => {
     try {
+      const token = await auth.currentUser.getIdToken(); // Ensure we fetch the token
       const response = await fetch(`http://localhost:5000/api/user/${userId}`, {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${await user.getIdToken()}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -75,7 +76,8 @@ const UserProfile = () => {
           body: JSON.stringify({
             mobileNumber,
             address,
-            name: user.displayName || "User Name",
+            name: user.displayName ||
+            (user.email ? getDisplayNameFromEmail(user.email) : "User"),
             email: user.email,
           }),
         }
@@ -83,6 +85,9 @@ const UserProfile = () => {
 
       if (response.ok) {
         alert("Profile updated successfully!");
+        setTimeout(() => {
+          window.location.reload(); // Reload the page after a brief delay
+        }, 1000); // Adjust the delay time (in milliseconds) as needed
       } else {
         alert("Failed to update profile.");
       }

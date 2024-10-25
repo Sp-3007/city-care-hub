@@ -1,4 +1,7 @@
 import React from "react";
+import { useState, useEffect } from 'react';
+import axios from 'axios'; // Ensure you have axios installed
+import { auth } from "../../config/firebase"
 import TopNavBar from "../../components/Admin/TopNavBar";
 import LeftNavBar from "../../components/Admin/LeftNavBar ";
 
@@ -17,6 +20,50 @@ const quotes = [
 
 const AdminHomePage = () => {
   const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+  const [userRequests, setUserRequests] = useState([]);
+
+  useEffect(() => {
+    const fetchUserRequests = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) {
+          alert("You must be logged in to submit a request.");
+          return;
+        }
+        const token = await user.getIdToken();
+
+        const response = await axios.get("http://localhost:5000/api/hireworker", {
+          headers: {
+             Authorization: `Bearer ${token}` , // Adjust as per your auth mechanism
+          },
+        });
+        setUserRequests(response.data);
+      } catch (error) {
+        console.error("Error fetching user requests:", error);
+      }
+    };
+
+    fetchUserRequests();
+  }, []);
+
+  const handleAcceptRequest = async (requestId) => {
+    try {
+      // Add your API call to accept the request
+      await axios.patch(`/api/hireworker/${requestId}`, { accepted: true }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      // Update the local state to reflect the accepted status
+      setUserRequests(prevRequests =>
+        prevRequests.map(request =>
+          request._id === requestId ? { ...request, accepted: true } : request
+        )
+      );
+    } catch (error) {
+      console.error("Error accepting request:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -60,54 +107,31 @@ const AdminHomePage = () => {
           </section>
 
           {/* User Requests Section */}
-          <section id="user-requests" className="mb-6"> {/* Reduced margin */}
-            <h2 className="text-xl font-semibold mb-2"> {/* Reduced font size */}
+          <section id="user-requests" className="mb-6">
+            <h2 className="text-xl font-semibold mb-2">
               User Requests
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"> {/* Reduced gap */}
-              {/* Individual User Request Component */}
-              <div className="bg-white shadow-lg rounded-lg p-4 transition duration-200 hover:shadow-xl"> {/* Reduced padding */}
-                <h3 className="text-lg font-semibold mb-2"> {/* Reduced font size */}
-                  Request for 2 Workers
-                </h3>
-                <p>Name: Swapnil</p>
-                <p>Mobile No: 9988776655</p>
-                <p>Purpose: Renovation</p>
-                <p>Address: 123 Main St</p>
-                <p>Status: Pending</p>
-                <button className="mt-2 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-500 transition duration-200"> {/* Reduced padding */}
-                  View Details
-                </button>
-              </div>
-
-              <div className="bg-white shadow-lg rounded-lg p-4 transition duration-200 hover:shadow-xl"> {/* Reduced padding */}
-                <h3 className="text-lg font-semibold mb-2"> {/* Reduced font size */}
-                  Request for 1 Worker
-                </h3>
-                <p>Name: Swapnil</p>
-                <p>Mobile No: 9988776655</p>
-                <p>Purpose: Cleaning</p>
-                <p>Address: 456 Elm St</p>
-                <p>Status: Processed</p>
-                <button className="mt-2 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-500 transition duration-200"> {/* Reduced padding */}
-                  View Details
-                </button>
-              </div>
-
-              <div className="bg-white shadow-lg rounded-lg p-4 transition duration-200 hover:shadow-xl"> {/* Reduced padding */}
-                <h3 className="text-lg font-semibold mb-2"> {/* Reduced font size */}
-                  Request for 3 Workers
-                </h3>
-                <p>Name: Swapnil</p>
-                <p>Mobile No: 9988776655</p>
-                <p>Purpose: Event Setup</p>
-                <p>Address: 789 Maple Ave</p>
-                <p>Status: Pending</p>
-                <button className="mt-2 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-500 transition duration-200"> {/* Reduced padding */}
-                  View Details
-                </button>
-              </div>
-              {/* Add more user request components as needed */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {userRequests.map(request => (
+                <div key={request.unique} className="bg-white shadow-lg rounded-lg p-4 transition duration-200 hover:shadow-xl">
+                  <h3 className="text-lg font-semibold mb-2">
+                    Request for {request.numberOfWorkers} Workers
+                  </h3>
+                  <p>Name: {request.name}</p>
+                  <p>Email: {request.email}</p>
+                  <p>Purpose: {request.purpose}</p>
+                  <p>Address: {request.address}</p>
+                  <p>Status: {request.accepted ? "Accepted" : "Pending"}</p>
+                  {!request.accepted && (
+                    <button
+                    onClick={() => handleAcceptRequest(request._id, request.email, request)} // Pass request details
+                    className="mt-2 bg-blue-600 text-white px-3 py-1 rounded-md hover:bg-blue-500 transition duration-200"
+                  >
+                    Accept Request
+                  </button>
+                  )}
+                </div>
+              ))}
             </div>
           </section>
 

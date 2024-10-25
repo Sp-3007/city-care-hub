@@ -27,8 +27,10 @@ const ComplaintForm = lazy(() =>
 );
 const ComplaintDetails = lazy(() =>
   import("./components/Complaint/ComplaintDetails")
-)
-const ProfileCompletionModal =lazy(()=>import("./components/User/ProfileCompletion/ProfileCompletionModal"))
+);
+const HireWorkers = lazy(() =>
+  import("./pages/HireWorkers")
+);
 
 const AppRoutes = () => {
   const location = useLocation();
@@ -83,11 +85,19 @@ const AppRoutes = () => {
                 </PrivateRoute>
               }
             />
+
+            <Route
+              path="/hire-workers"
+              element={
+                <PrivateRoute>
+                  <HireWorkers />
+                </PrivateRoute>
+              }
+            />
             <Route path="/citynews" element={<CityNews />} />
             <Route path="/citynews/:id" element={<PerticularNewsDetails />} />
             <Route path="/upcoming-events" element={<UpcomingEvents />} />
             <Route path="/profile" element={<UserProfile />} />
-            <Route path="/profile-completion" element={<ProfileCompletionModal />} />
 
             <Route path="/admin/*" element={<AdminRoutes />} />
           </Routes>
